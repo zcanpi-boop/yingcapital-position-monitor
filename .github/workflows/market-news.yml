@@ -1,0 +1,380 @@
+name: Market news to Telegram
+on:
+workflow_run:
+workflows: ["Monitor public operation records"]
+types: [requested]
+branches: [main]
+workflow_dispatch:
+
+permissions:
+contents: write
+concurrency:
+group: market-news-delivery
+cancel-in-progress: false
+
+jobs:
+news:
+if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.event == 'workflow_dispatch' || github.event.workflow_run.event == 'schedule'
+runs-on: ubuntu-latest
+timeout-minutes: 5
+steps:
+- uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+with:
+ref: main
+- name: Restore news observations
+shell: bash
+run: |
+set -euo pipefail
+git config user.name market-news-bot
+git config user.email market-news-bot@users.noreply.github.com
+if git ls-remote --exit-code --heads origin news-state >/dev/null; then
+git fetch --depth=1 origin refs/heads/news-state
+git switch -C news-state FETCH_HEAD
+else
+status=$?
+if [ "$status" -ne 2 ]; then exit "$status"; fi
+git switch --orphan news-state
+fi
+- name: Race public feeds and alert
+env:
+TG_TOKEN: ${{ secrets.NEWS_TELEGRAM_BOT_TOKEN }}
+NEWS_X_TOKEN: ${{ secrets.NEWS_X_BEARER_TOKEN }}
+NEWS_JIN10_TOKEN: ${{ secrets.NEWS_JIN10_MCP_TOKEN }}
+TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+shell: bash
+run: |
+python3 - <<'PYTHON'
+import concurrent.futures as futures
+import datetime as dt
+import email.utils
+import hashlib
+import html
+import json
+import os
+import re
+import subprocess
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as XML
+from pathlib import Path
+
+      # The final flag allows all releases for narrow official economic feeds.
+      FEEDS = [
+          ("Bloomberg Markets","https://feeds.bloomberg.com/markets/news.rss",False),
+          ("Bloomberg Technology","https://feeds.bloomberg.com/technology/news.rss",False),
+          ("BWEnews RSS","https://rss-public.bwe-ws.com/",True),
+          ("FT 头条","https://www.ft.com/rss/home",False),
+          ("FT 科技","https://www.ft.com/technology?format=rss",False),
+          ("FirstFT","https://www.ft.com/firstft?format=rss",False),
+          ("NVIDIA 公告","https://nvidianews.nvidia.com/releases.xml",False),
+          ("OpenAI","https://openai.com/news/rss.xml",False),
+          ("美联储公告","https://www.federalreserve.gov/feeds/press_all.xml",True),
+          ("美联储讲话","https://www.federalreserve.gov/feeds/speeches.xml",True),
+          ("美联储国会证词","https://www.federalreserve.gov/feeds/testimony.xml",True),
+          ("美国 CPI","https://www.bls.gov/feed/cpi.rss",True),
+          ("美国 PPI","https://www.bls.gov/feed/ppi.rss",True),
+          ("美国就业","https://www.bls.gov/feed/empsit.rss",True),
+          ("美国 BEA","https://www.bea.gov/rss/rss.xml",True),
+          ("美国 SEC","https://www.sec.gov/news/pressreleases.rss",False),
+          ("白宫行政措施","https://www.whitehouse.gov/presidential-actions/feed/",False),
+          ("白宫声明","https://www.whitehouse.gov/briefings-statements/feed/",False),
+          ("白宫讲话","https://www.whitehouse.gov/remarks/feed/",True),
+          ("欧洲央行","https://www.ecb.europa.eu/rss/press.html",False),
+          ("GlobeNewswire 公司公告","https://www.globenewswire.com/RssFeed/subjectcode/14/feedTitle/Company%20Announcement",False),
+          ("Investing 美股","https://www.investing.com/rss/news_25.rss",False),
+          ("CoinDesk","https://www.coindesk.com/arc/outboundfeeds/rss/",False),
+          ("BBC 商业","https://feeds.bbci.co.uk/news/business/rss.xml",False),
+          ("香港电台财经","https://rthk.hk/rthk/news/rss/c_expressnews_cfinance.xml",False),
+      ]
+      TOPICS = [
+       ("市场快讯",r"特朗普|美联储|鲍威尔|沃什|降息|加息|非农|通胀|关税|芯片|英伟达|黄仁勋|出口管制|比特币|以太坊|稳定币|美债|原油|停火|制裁|议息|美國總統"),
+       ("政策／地缘",r"trump|white house|tariff|executive order|sanction|export (?:control|restrict|ban)|ceasefire|strait of hormuz|opec|embargo|invasion|shutdown|特朗普|川普|關稅|制裁|停火|油組"),
+       ("宏观／央行",r"inflation|consumer price|producer price|payroll|unemployment|jobless|job report|interest rate|rate (?:cut|hike|decision)|fomc|central bank|federal reserve|powell|warsh|lagarde|treasury auction|bond auction|yield curve|debt ceiling|\bgdp\b|\bpce\b|\bcpi\b|\bppi\b|聯儲|央行|通脹|非農|減息|加息"),
+       ("科技／芯片",r"nvidia|jensen huang|semiconductor|chips?\b|tsmc|asml|amd\b|intel\b|micron|sk hynix|apple\b|microsoft|amazon|alphabet|google|meta platforms|tesla|supermicro|broadcom|英偉達|輝達|黃仁勳|台積電|晶片|芯片"),
+       ("人工智能",r"openai|anthropic|deepseek|artificial intelligence|\bai\b|\bgpt|claude|gemini|data cent(?:er|re)|sam altman|amodei|算力|人工智能"),
+       ("数字资产",r"bitcoin|ethereum|stablecoin|cryptocurrenc|\bcrypto|\betf\b|binance|coinbase|tether|defi|liquidation|depeg|比特幣|以太幣|穩定幣"),
+       ("重大市场事件",r"default|bankrupt|bank run|trading halt|emergency|financial crisis|bank failure|bank rescue|merger|acquisition|earnings guidance|supply shock|cyberattack|重大收購|破產|違約|熔斷")]
+      OFFICIAL = {"X @nvidianewsroom","NVIDIA 公告","OpenAI","美国 SEC","美国 BEA","美国 CPI","美国 PPI","美国就业","美联储公告","美联储讲话","美联储国会证词","白宫行政措施","白宫声明","白宫讲话","欧洲央行"}
+      WORDS = re.compile(r"[a-z0-9]+|[\u3400-\u9fff]")
+      STOP=set("a an the in to its of at as on by amid from for says said reports report and with after ft firstft reuters".split())
+      def clean(text):
+          return " ".join(html.unescape(re.sub("<[^>]*>"," ",text or "")).split())
+      def stamp(text):
+          try:
+              try: d=dt.datetime.fromisoformat(text.replace("Z","+00:00"))
+              except ValueError: d=email.utils.parsedate_to_datetime(text)
+              return d.timestamp() if d.tzinfo else None
+          except (TypeError,ValueError,OverflowError): return None
+      def entries(body):
+          root=XML.fromstring(body)
+          items=root.findall(".//{*}item") or root.findall("{*}entry")
+          if not items: raise ValueError("empty or non-feed response")
+          out=[]
+          for item in items[:50]:
+              def field(name): return clean(item.findtext("{*}"+name,""))
+              title=field("title")
+              link=next((n.get("href") or n.text or "" for n in item.findall("{*}link") if n.get("rel","alternate")=="alternate"),"").strip()
+              if title and link.startswith(("https://","http://")):
+                  out.append((title,link,stamp(field("pubDate") or field("published") or field("date")),field("description") or field("summary") or field("content")))
+          if not out: raise ValueError("no readable headlines")
+          return out
+      X_HANDLES=("apewirenews","tradfinews","AggrNews","bwenews","nvidianewsroom")
+      def x_batch(meta):
+          params={"query":"("+" OR ".join("from:"+h for h in X_HANDLES)+") -is:retweet",
+                  "max_results":100,"tweet.fields":"author_id,created_at","expansions":"author_id","user.fields":"username"}
+          if meta.get("cursor"): params["since_id"]=meta["cursor"]
+          result={h.lower():[] for h in X_HANDLES}; newest=meta.get("cursor")
+          for _ in range(5):
+              url="https://api.x.com/2/tweets/search/recent?"+urllib.parse.urlencode(params)
+              req=urllib.request.Request(url,headers={"Authorization":"Bearer "+os.environ["NEWS_X_TOKEN"]})
+              with urllib.request.urlopen(req,timeout=7) as r: data=json.load(r)
+              authors={u["id"]:u["username"].lower() for u in data.get("includes",{}).get("users",[])}
+              for p in data.get("data",[]):
+                  h=authors[p["author_id"]]
+                  if h not in result:continue
+                  result[h].append((p["text"],f"https://x.com/{h}/status/{p['id']}",stamp(p["created_at"]),""))
+                  if newest is None or int(p["id"])>int(newest):newest=p["id"]
+              token=data.get("meta",{}).get("next_token")
+              if not token or not meta.get("ready"):break
+              params["next_token"]=token
+          else:print("::warning::X catch-up window exceeded; some older posts may be missing")
+          return result,{"cursor":newest,"ready":True},time.time()
+      
+      def jin_flash():
+          endpoint="https://mcp.jin10.com/mcp"
+          headers={"Authorization":"Bearer "+os.environ["NEWS_JIN10_TOKEN"],"Content-Type":"application/json","Accept":"application/json, text/event-stream"}
+          def rpc(method,params,number=None):
+              packet={"jsonrpc":"2.0","method":method,"params":params}
+              if number is not None:packet["id"]=number
+              req=urllib.request.Request(endpoint,data=json.dumps(packet).encode(),headers=headers)
+              with urllib.request.urlopen(req,timeout=8) as r:
+                  if r.headers.get("Mcp-Session-Id"):headers["Mcp-Session-Id"]=r.headers["Mcp-Session-Id"]
+                  if number is None:return
+                  if "text/event-stream" in r.headers.get("Content-Type",""):
+                      for line in r:
+                          if not line.startswith(b"data:"):continue
+                          val=json.loads(line[5:])
+                          if val.get("id")==number:break
+                      else:raise ValueError("empty MCP reply")
+                  else:val=json.load(r)
+                  return val["result"]
+          init=rpc("initialize",{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"market-news","version":"1"}},1)
+          headers["MCP-Protocol-Version"]=init["protocolVersion"]
+          rpc("notifications/initialized",{})
+          payload=rpc("tools/call",{"name":"list_flash","arguments":{}},2)
+          if payload.get("isError"):raise ValueError("list_flash error")
+          body=payload.get("structuredContent") or json.loads(next(o["text"] for o in payload["content"] if o["type"]=="text"))
+          data=body.get("data",body)
+          return [(clean(i.get("title") or i.get("content"))[:550],i["url"],stamp(i.get("time")),"") for i in data["items"] if i.get("url","").startswith("https://")],{},time.time()
+      
+      def fetch(source, meta):
+          name,url,_=source
+          if name=="X batch":return x_batch(meta)
+          if name=="金十快讯":return jin_flash()
+          headers={"User-Agent":"MarketNewsReader/1.0 (personal RSS reader)"}
+          if meta.get("etag"): headers["If-None-Match"]=meta["etag"]
+          if meta.get("modified"): headers["If-Modified-Since"]=meta["modified"]
+          try:
+              open_url=opener.open if name.startswith("候选 ") else urllib.request.urlopen
+              with open_url(urllib.request.Request(url,headers=headers),timeout=7) as r:
+                  rows=entries(r.read(5_000_000))
+                  return rows,{"etag":r.headers.get("ETag"),"modified":r.headers.get("Last-Modified")},time.time()
+          except urllib.error.HTTPError as e:
+              if e.code==304 and meta.get("ready"): return [],meta,time.time()
+              raise
+      def tokens(title):
+          return set(WORDS.findall(title.casefold()))-STOP
+      def same(a,b):
+          x,y=tokens(a),tokens(b)
+          # Preserve changes in numbers, negation, scope and attribution of certainty.
+          if re.findall(r"\d+(?:[.,]\d+)*%?",a)!=re.findall(r"\d+(?:[.,]\d+)*%?",b):return False
+          qualifiers={"not","denies","denied","may","might","plans","considers","proposes","confirms","reverses","lifts","china","asia","malaysia","singapore","indonesia","thailand"}
+          if x & qualifiers != y & qualifiers:return False
+          # Strongly anchored headline variants. Avoid merging subsequent reaction or analysis.
+          def huang_return(words):
+              names={"nvidia","huang"}
+              actions={"reinstates","reinstated","reappoints","reappointed"}
+              roles={"ceo","chief","president"}
+              extra={"board","jensen","jen","hsun","as","and","director","boardroom","executive","officer","member","again","is"}
+              return names<=words and bool(actions&words) and bool(roles&words) and not (words-names-actions-roles-extra)
+          if huang_return(x) and huang_return(y):return True
+          return x==y or (len(x&y)>=5 and len(x&y)/len(x|y)>=0.72)
+      def digest(s):return hashlib.sha256(s.encode()).hexdigest()[:24]
+      def clock(t):return dt.datetime.fromtimestamp(t,dt.timezone(dt.timedelta(hours=8))).strftime("%m-%d %H:%M:%S")
+      def send(msg):
+          method="https://api.telegram.org/bot"+os.environ["TG_TOKEN"]+"/sendMessage"
+          request=urllib.request.Request(method,data=urllib.parse.urlencode({"chat_id":os.environ["TG_CHAT"],"text":msg[:4070],"disable_web_page_preview":"true"}).encode())
+          with urllib.request.urlopen(request,timeout=8) as r:
+              if not json.load(r).get("ok"): raise ValueError("Telegram rejected message")
+      def persist(state):
+          p=Path("ledger.json");p.write_text(json.dumps(state,ensure_ascii=False,separators=(",",":")))
+          subprocess.run(["git","add","ledger.json"]+(["discovery.json"] if Path("discovery.json").exists() else []),check=True)
+          if subprocess.run(["git","diff","--cached","--quiet"]).returncode:
+              subprocess.run(["git","commit","-qm","Record feed observations"],check=True)
+              subprocess.run(["git","push","-q","origin","HEAD:news-state"],check=True)
+      def handle(state,source,rows,meta,t):
+          name,_,all_news=source
+          ready=state["sources"].get(name,{}).get("ready")
+          state["sources"][name]={**meta,"ready":True}
+          for title,url,pub,summary in reversed(rows):
+              key=digest(name+"|"+url+"|"+title)
+              if key in state["seen"]:
+                  if t-state["seen"][key]>86400:state["seen"][key]=t
+                  continue
+              state["seen"][key]=t
+              if not ready or (pub and pub<t-6*3600):continue
+              topic=next((label for label,pattern in TOPICS if re.search(pattern,title,re.I)),None)
+              if not all_news and not topic:continue
+              for group in reversed(state["events"]):
+                  if t-group["first"]>6*3600:continue
+                  if same(title,group["title"]):
+                      group["also"].append({"source":name,"published":pub,"seen":t,"url":url})
+                      break
+              else:
+                  state["events"].append(dict(title=title,url=url,published=pub,first=t,source=name,topic=topic or name,
+                      summary=summary[:200] if all_news else "",also=[],delivered=None))
+      def flush(state):
+          for group in state["events"]:
+              if group["delivered"] or time.time()-group["first"]>6*3600:continue
+              g=group
+              kind="机构发布" if g["source"] in OFFICIAL else "媒体／分发渠道"
+              lines=[f"【{g['topic']}】{g['title']}",g["summary"],f"{kind} · {g['source']}",
+                  "发布 "+(clock(g["published"]) if g["published"] else "未提供可核实时区"),
+                  "首次读到 "+clock(g["first"])+"（北京时间）",g["url"]]
+              send("\n".join(filter(None,lines)));g["delivered"]=time.time()
+      # Search indexes find publishers. Direct publisher feeds participate in speed tests.
+      from html.parser import HTMLParser
+      TRUSTED = set("reuters.com ft.com cnbc.com federalreserve.gov bls.gov sec.gov whitehouse.gov treasury.gov bis.gov commerce.gov bankofengland.co.uk ecb.europa.eu nvidia.com amd.com intel.com tsmc.com microsoft.com openai.com anthropic.com blog.google coindesk.com theblock.co apnews.com bbc.co.uk theguardian.com investing.com prnewswire.com".split())
+      SEARCH = ["Nvidia OR semiconductor OR OpenAI", "Trump OR tariffs OR FOMC OR CPI", "bitcoin OR stablecoin OR ETF"]
+      SEEDS = ["https://www.bankofengland.co.uk/rss/news","https://www.ft.com/artificial-intelligence?format=rss",
+               "https://www.theguardian.com/world/donaldtrump/rss","https://www.investing.com/rss/news_301.rss"]
+      def host(url):
+          return (urllib.parse.urlsplit(url).hostname or "").lower().removeprefix("www.")
+      def publisher(url):
+          return next((d for d in TRUSTED if host(url)==d or host(url).endswith("."+d)),host(url))
+      def permitted(url):
+          parts=urllib.parse.urlsplit(url)
+          return parts.scheme=="https" and publisher(url) in TRUSTED and not parts.username and parts.port in (443,None)
+      class LimitedRedirect(urllib.request.HTTPRedirectHandler):
+          def redirect_request(self,req,fp,code,msg,headers,newurl):
+              if not permitted(newurl):raise ValueError("unexpected redirect")
+              return super().redirect_request(req,fp,code,msg,headers,newurl)
+      opener=urllib.request.build_opener(LimitedRedirect)
+      class FeedLinks(HTMLParser):
+          def __init__(self):
+              super().__init__();self.links=[]
+          def handle_starttag(self,tag,attrs):
+              a=dict(attrs)
+              if tag=="link" and "alternate" in (a.get("rel") or "").split() and (a.get("type") or "").lower() in ("application/rss+xml","application/atom+xml") and a.get("href"):
+                  self.links.append(a["href"])
+      def discover(state,now):
+          if now-state.get("last_scan",0)<86400:return
+          state["last_scan"]=now
+          candidates=state.setdefault("candidates",{})
+          origins=state.setdefault("publishers",{})
+          urls=list(SEEDS)
+          for query in SEARCH:
+              try:
+                  url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":query+" when:3d","hl":"en-US","gl":"US","ceid":"US:en"})
+                  with urllib.request.urlopen(url,timeout=5) as response:
+                      root=XML.fromstring(response.read(2_000_000))
+                  for node in root.findall(".//item/source"):
+                      site=node.get("url","")
+                      if site.startswith("https://") and host(site):
+                          row=origins.setdefault(host(site),{"name":clean(node.text)[:80],"checked":0})
+                          row["last_seen"]=now
+              except Exception as error:print("::warning::Discovery search:",type(error).__name__)
+          for domain,row in sorted(origins.items(), key=lambda kv:kv[1]["checked"]):
+              if sum(1 for v in origins.values() if v["checked"]==now)>=8:break
+              homepage="https://"+domain+"/"
+              if not permitted(homepage):continue
+              row["checked"]=now
+              try:
+                  with opener.open(homepage,timeout=4) as response:
+                      parser=FeedLinks();parser.feed(response.read(450000).decode("utf-8","replace"))
+                      urls.extend(urllib.parse.urljoin(response.url,link) for link in parser.links[:3])
+              except Exception:continue
+          for url in urls:
+              if permitted(url) and url not in {f[1] for f in FEEDS}:
+                  candidates.setdefault(url,{"added":now,"active":False,"trial":0})
+          # Keep recent publishers in the discovery report; probe only reviewed domains.
+          state["publishers"]=dict(sorted(origins.items(),key=lambda kv:-kv[1].get("last_seen",0))[:400])
+      def observe_shadow(state,url,rows,meta,t):
+          name="候选 "+url
+          ready=state["sources"].get(name,{}).get("ready")
+          state["sources"][name]={**meta,"ready":True}
+          log=state.setdefault("shadow",{})
+          for title,article,pub,_ in rows:
+              key=digest(name+"|"+article+"|"+title)
+              if key in state["seen"]:continue
+              state["seen"][key]=t
+              if ready and (not pub or t-21600<=pub<=t+300) and any(re.search(rx,title,re.I) for _,rx in TOPICS):
+                  log[key]={"source":url,"title":title,"seen":t}
+      def evaluate(state,now):
+          state["shadow"]={k:v for k,v in state.get("shadow",{}).items() if v["seen"]>=now-7*86400}
+          feed_urls={n:u for n,u,_ in FEEDS}
+          for url,c in state.get("candidates",{}).items():
+              if c["active"]:continue
+              matches={}
+              for obs in state["shadow"].values():
+                  if obs["source"]!=url:continue
+                  for event in reversed(state["events"]):
+                      ref=feed_urls.get(event["source"],event["source"].removeprefix("候选 "))
+                      if publisher(ref)==publisher(url) or abs(event["first"]-obs["seen"])>21600:continue
+                      if same(obs["title"],event["title"]):
+                          k=digest(event["title"]+str(event["first"]))
+                          matches[k]=max(matches.get(k,-21601),event["first"]-obs["seen"]);break
+              c["matches"]=len(matches);c["wins"]=sum(v>=10 for v in matches.values())
+              if c["matches"]>=5 and c["wins"]>=3 and c["wins"]/c["matches"]>=0.6:c["active"]=True
+      
+      def run():
+          if not os.environ.get("TG_TOKEN") or not os.environ.get("TG_CHAT"):raise ValueError("Telegram secrets missing")
+          p=Path("ledger.json")
+          state=json.loads(p.read_text()) if p.exists() else {"sources":{},"seen":{},"events":[]}
+          now=time.time()
+          state["seen"]={k:v for k,v in state["seen"].items() if v>now-14*86400}
+          state["events"]=[g for g in state["events"] if g["first"]>now-7*86400]
+          success=set(); tg_error=False
+          try:
+              candidates=state.setdefault("candidates",{})
+              active=[u for u,c in candidates.items() if c["active"]]
+              trial=sorted((u for u,c in candidates.items() if not c["active"]),key=lambda u:candidates[u]["trial"])[:4]
+              for u in trial:candidates[u]["trial"]=now
+              sources=FEEDS+[("候选 "+u,u,False) for u in active+trial]
+              if os.environ.get("NEWS_X_TOKEN"):sources.append(("X batch","https://x.com",True))
+              if os.environ.get("NEWS_JIN10_TOKEN"):sources.append(("金十快讯","https://flash.jin10.com",False))
+              for tick in range(3):
+                  started=time.monotonic()
+                  with futures.ThreadPoolExecutor(max_workers=len(sources)) as pool:
+                      tasks={pool.submit(fetch,s,state["sources"].get(s[0],{})):s for s in sources}
+                      for f in futures.as_completed(tasks):
+                          s=tasks[f]
+                          try: rows,meta,t=f.result()
+                          except Exception as e:
+                              print(f"::warning::{s[0]} source unavailable ({type(e).__name__}, {getattr(e,'code','')})")
+                              continue
+                          success.add(s[0])
+                          if s[0]=="X batch":
+                              for user,posts in rows.items():
+                                  name="X @"+user
+                                  handle(state,(name,"https://x.com/"+user,True),posts,{},t)
+                              state["sources"][s[0]]=meta
+                          elif s[1] in trial:observe_shadow(state,s[1],rows,meta,t)
+                          else:handle(state,s,rows,meta,t)
+                          if not tg_error:
+                              try:flush(state)
+                              except Exception as e:
+                                  print("::warning::Telegram delivery deferred:",type(e).__name__,getattr(e,"code",""));tg_error=True
+                  persist(state)
+                  if tick<2:time.sleep(max(0,35-(time.monotonic()-started)))
+              evaluate(state,time.time())
+              discover(state,time.time())
+              report={"candidates":state["candidates"],"publishers":state.get("publishers",{}),"last_scan":state.get("last_scan")}
+              Path("discovery.json").write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          finally:persist(state)
+          print(f"Readable feeds: {len(success)}/{len(sources)}; first runs establish baselines; new events are kept on news-state.")
+          if not success or tg_error:raise SystemExit(1)
+      if __name__=="__main__":run()
+      PYTHON
