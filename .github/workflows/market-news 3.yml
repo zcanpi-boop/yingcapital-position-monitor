@@ -67,6 +67,9 @@ jobs:
               ("Bloomberg Markets","https://feeds.bloomberg.com/markets/news.rss",False),
               ("Bloomberg Technology","https://feeds.bloomberg.com/technology/news.rss",False),
               ("BWEnews RSS","https://rss-public.bwe-ws.com/",True),
+              ("MarketWatch 头条","https://feeds.content.dowjones.io/public/rss/mw_topstories",False),
+              ("卫报商业","https://www.theguardian.com/business/rss",False),
+              ("卫报科技","https://www.theguardian.com/technology/rss",False),
               ("FT 头条","https://www.ft.com/rss/home",False),
               ("FT 科技","https://www.ft.com/technology?format=rss",False),
               ("FirstFT","https://www.ft.com/firstft?format=rss",False),
@@ -275,7 +278,9 @@ jobs:
               return ""
           def render(g, translated):
               kind="机构发布" if g["source"] in OFFICIAL else "媒体／分发渠道"
-              lines=[f"【{g['topic']}】{translated or g['title']}", g["title"] if translated else "", g["summary"],f"{kind} · {g['source']}",
+              lag = int(g["first"] - g["published"]) if g["published"] else 0
+              badge = f"【迟到 {lag//60} 分钟】" if lag >= 900 else ""
+              lines=[f"{badge}【{g['topic']}】{translated or g['title']}", g["title"] if translated else "", g["summary"],f"{kind} · {g['source']}",
                   "发布 "+(clock(g["published"]) if g["published"] else "未提供可核实时区"),
                   "首次读到 "+clock(g["first"])+"（北京时间）",g["url"]]
               return "\n".join(filter(None,lines))
@@ -286,7 +291,7 @@ jobs:
               return letters > 0 and (han == 0 or letters > 6 * han)
 
           def flush(state):
-              for g in state["events"]:
+              for g in sorted((e for e in state["events"] if not e["delivered"]), key=lambda e: e["published"] or e["first"], reverse=True):
                   if g["delivered"] or time.time() - g["first"] > 6*3600:
                       continue
                   needs = needs_translation(g["title"])
@@ -396,6 +401,21 @@ jobs:
                   c["matches"]=len(matches);c["wins"]=sum(v>=10 for v in matches.values())
                   if c["matches"]>=5 and c["wins"]>=3 and c["wins"]/c["matches"]>=0.6:c["active"]=True
           
+          def polling_rounds(sources):
+              fast = {"BWEnews RSS", "CoinDesk", TRUMP_ARCHIVE}
+              schedule = [(0, sources), (15, None), (30, None), (35, sources),
+                          (50, None), (65, None), (75, sources), (90, None)]
+              start = time.monotonic()
+              quick = [s for s in sources if s[0] in fast]
+              for offset, batch in schedule:
+                  remaining = start + offset - time.monotonic()
+                  if offset and remaining < -5 and batch is None:
+                      continue
+                  if offset and time.monotonic() - start > 100:
+                      break
+                  time.sleep(max(0, remaining))
+                  yield batch if batch is not None else quick
+
           def run():
               if not os.environ.get("TG_TOKEN") or not os.environ.get("TG_CHAT"):raise ValueError("Telegram secrets missing")
               p=Path("ledger.json")
@@ -412,10 +432,9 @@ jobs:
                   sources=FEEDS+[("候选 "+u,u,False) for u in active+trial]
                   if os.environ.get("NEWS_X_TOKEN"):sources.append(("X batch","https://x.com",True))
                   if os.environ.get("NEWS_JIN10_TOKEN"):sources.append(("金十快讯","https://flash.jin10.com",False))
-                  for tick in range(3):
-                      started=time.monotonic()
-                      with futures.ThreadPoolExecutor(max_workers=len(sources)) as pool:
-                          tasks={pool.submit(fetch,s,state["sources"].get(s[0],{})):s for s in sources}
+                  for batch in polling_rounds(sources):
+                      with futures.ThreadPoolExecutor(max_workers=len(batch)) as pool:
+                          tasks={pool.submit(fetch,s,state["sources"].get(s[0],{})):s for s in batch}
                           for f in futures.as_completed(tasks):
                               s=tasks[f]
                               try: rows,meta,t=f.result()
@@ -435,8 +454,8 @@ jobs:
                                   except Exception as e:
                                       print("::warning::Telegram delivery deferred:",type(e).__name__,getattr(e,"code",""));tg_error=True
                       persist(state)
-                      repair_translations(state)
-                      if tick<2:time.sleep(max(0,35-(time.monotonic()-started)))
+                      if batch is sources:
+                          repair_translations(state)
                   evaluate(state,time.time())
                   discover(state,time.time())
                   report={"candidates":state["candidates"],"publishers":state.get("publishers",{}),"last_scan":state.get("last_scan")}
