@@ -61,7 +61,9 @@ jobs:
           from pathlib import Path
           
           # The final flag allows all releases for narrow official economic feeds.
+          TRUMP_ARCHIVE = "特朗普 Truth Social（独立存档）"
           FEEDS = [
+              (TRUMP_ARCHIVE,"https://www.trumpstruth.org/feed",True),
               ("Bloomberg Markets","https://feeds.bloomberg.com/markets/news.rss",False),
               ("Bloomberg Technology","https://feeds.bloomberg.com/technology/news.rss",False),
               ("BWEnews RSS","https://rss-public.bwe-ws.com/",True),
@@ -107,7 +109,7 @@ jobs:
                   except ValueError: d=email.utils.parsedate_to_datetime(text)
                   return d.timestamp() if d.tzinfo else None
               except (TypeError,ValueError,OverflowError): return None
-          def entries(body):
+          def entries(body, trump_archive=False):
               root=XML.fromstring(body)
               items=root.findall(".//{*}item") or root.findall("{*}entry")
               if not items: raise ValueError("empty or non-feed response")
@@ -116,11 +118,17 @@ jobs:
                   def field(name): return clean(item.findtext("{*}"+name,""))
                   title=field("title")
                   link=next((n.get("href") or n.text or "" for n in item.findall("{*}link") if n.get("rel","alternate")=="alternate"),"").strip()
+                  if trump_archive:
+                      if field("postType") == "repost":
+                          continue
+                      original = field("originalUrl")
+                      if original.startswith("https://truthsocial.com/@realDonaldTrump/"):
+                          link = original
                   if title and link.startswith(("https://","http://")):
                       out.append((title,link,stamp(field("pubDate") or field("published") or field("date")),field("description") or field("summary") or field("content")))
-              if not out: raise ValueError("no readable headlines")
+              if not out and not trump_archive: raise ValueError("no readable headlines")
               return out
-          X_HANDLES=("apewirenews","tradfinews","AggrNews","bwenews","nvidianewsroom")
+          X_HANDLES=("apewirenews","tradfinews","AggrNews","bwenews","nvidianewsroom","realDonaldTrump")
           def x_batch(meta):
               params={"query":"("+" OR ".join("from:"+h for h in X_HANDLES)+") -is:retweet",
                       "max_results":100,"tweet.fields":"author_id,created_at","expansions":"author_id","user.fields":"username"}
@@ -179,7 +187,7 @@ jobs:
               try:
                   open_url=opener.open if name.startswith("候选 ") else urllib.request.urlopen
                   with open_url(urllib.request.Request(url,headers=headers),timeout=7) as r:
-                      rows=entries(r.read(5_000_000))
+                      rows=entries(r.read(5_000_000), name == TRUMP_ARCHIVE)
                       return rows,{"etag":r.headers.get("ETag"),"modified":r.headers.get("Last-Modified")},time.time()
               except urllib.error.HTTPError as e:
                   if e.code==304 and meta.get("ready"): return [],meta,time.time()
@@ -228,16 +236,19 @@ jobs:
               ready=state["sources"].get(name,{}).get("ready")
               state["sources"][name]={**meta,"ready":True}
               for title,url,pub,summary in reversed(rows):
-                  key=digest(name+"|"+url+"|"+title)
+                  personal = name in (TRUMP_ARCHIVE, "X @realdonaldtrump")
+                  key=digest(name+"|"+url if personal else name+"|"+url+"|"+title)
                   if key in state["seen"]:
                       if t-state["seen"][key]>86400:state["seen"][key]=t
                       continue
                   state["seen"][key]=t
                   if not ready or (pub and pub<t-6*3600):continue
                   topic=next((label for label,pattern in TOPICS if re.search(pattern,title,re.I)),None)
+                  if personal: topic = "特朗普本人发帖"
                   if not all_news and not topic:continue
                   for group in reversed(state["events"]):
                       if t-group["first"]>6*3600:continue
+                      if personal and group["source"] == name and url != group["url"]:continue
                       if same(title,group["title"]):
                           group["also"].append({"source":name,"published":pub,"seen":t,"url":url})
                           break
