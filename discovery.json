@@ -3,28 +3,28 @@
     "https://www.bankofengland.co.uk/rss/news": {
       "added": 1795680615.5296438,
       "active": false,
-      "trial": 1795853216.008855,
+      "trial": 1795853339.1147225,
       "matches": 0,
       "wins": 0
     },
     "https://www.ft.com/artificial-intelligence?format=rss": {
       "added": 1795680615.5296438,
       "active": false,
-      "trial": 1795853216.008855,
+      "trial": 1795853339.1147225,
       "matches": 0,
       "wins": 0
     },
     "https://www.theguardian.com/world/donaldtrump/rss": {
       "added": 1795680615.5296438,
       "active": false,
-      "trial": 1795853216.008855,
+      "trial": 1795853339.1147225,
       "matches": 0,
       "wins": 0
     },
     "https://www.investing.com/rss/news_301.rss": {
       "added": 1795680615.5296438,
       "active": false,
-      "trial": 1795853216.008855,
+      "trial": 1795853339.1147225,
       "matches": 0,
       "wins": 0
     }
@@ -32,112 +32,572 @@
   "publishers": {
     "cnbc.com": {
       "name": "CNBC",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
+      "checked": 1795853429.6908157,
+      "last_seen": 1795853429.6908157
     },
     "washingtonpost.com": {
       "name": "The Washington Post",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "wsj.com": {
       "name": "WSJ",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "nytimes.com": {
       "name": "The New York Times",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "fool.com": {
       "name": "The Motley Fool",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "reuters.com": {
       "name": "Reuters",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
+      "checked": 1795853429.6908157,
+      "last_seen": 1795853429.6908157
     },
     "axios.com": {
       "name": "Axios",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "techcrunch.com": {
       "name": "TechCrunch",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "ft.com": {
       "name": "Financial Times",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
+      "checked": 1795853429.6908157,
+      "last_seen": 1795853429.6908157
     },
     "bloomberg.com": {
       "name": "Bloomberg.com",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "finance.yahoo.com": {
       "name": "Yahoo Finance",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "nbcnews.com": {
       "name": "NBC News",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "businessinsider.com": {
       "name": "Business Insider",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "barrons.com": {
       "name": "Barron's",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
     },
     "abcnews.com": {
       "name": "ABC News - Breaking News, Latest News and Videos",
       "checked": 0,
-      "last_seen": 1795767028.4682114
+      "last_seen": 1795853429.6908157
+    },
+    "cbsnews.com": {
+      "name": "CBS News",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "marketwatch.com": {
+      "name": "MarketWatch",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "aljazeera.com": {
+      "name": "Al Jazeera",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "theguardian.com": {
+      "name": "The Guardian",
+      "checked": 1795767028.4682114,
+      "last_seen": 1795853429.6908157
+    },
+    "forbes.com": {
+      "name": "Forbes",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "decrypt.co": {
+      "name": "Decrypt",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "npr.org": {
+      "name": "NPR",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "benzinga.com": {
+      "name": "Benzinga",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "fortune.com": {
+      "name": "Fortune",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "time.com": {
+      "name": "Time Magazine",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "pbs.org": {
+      "name": "PBS",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "aa.com.tr": {
+      "name": "Anadolu Ajansı",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "247wallst.com": {
+      "name": "24/7 Wall St.",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "thehill.com": {
+      "name": "The Hill",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "politico.com": {
+      "name": "Politico",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "foxbusiness.com": {
+      "name": "Fox Business",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "foxnews.com": {
+      "name": "Fox News",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "inc.com": {
+      "name": "Inc.com",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "usatoday.com": {
+      "name": "USA Today",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "coindesk.com": {
+      "name": "CoinDesk",
+      "checked": 1795853429.6908157,
+      "last_seen": 1795853429.6908157
+    },
+    "theblock.co": {
+      "name": "The Block",
+      "checked": 1795767028.4682114,
+      "last_seen": 1795853429.6908157
+    },
+    "shattered.io": {
+      "name": "shattered.io",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "tradingview.com": {
+      "name": "TradingView",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "investing.com": {
+      "name": "Investing.com",
+      "checked": 1795767028.4682114,
+      "last_seen": 1795853429.6908157
+    },
+    "finance.biggo.com": {
+      "name": "BigGo Finance",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "crypto.news": {
+      "name": "Crypto News",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "morningstar.com": {
+      "name": "Morningstar",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "seekingalpha.com": {
+      "name": "Seeking Alpha",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "barchart.com": {
+      "name": "Barchart.com",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "theverge.com": {
+      "name": "The Verge",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "independent.co.uk": {
+      "name": "The Independent",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "miningjournal.net": {
+      "name": "The Mining Journal",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "jpost.com": {
+      "name": "The Jerusalem Post",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "newscord.org": {
+      "name": "NewsCord",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "deadline.com": {
+      "name": "Deadline",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "engadget.com": {
+      "name": "Engadget",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "newsweek.com": {
+      "name": "Newsweek",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cointribune.com": {
+      "name": "Cointribune",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cryptonews.net": {
+      "name": "Cryptonews.net",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "en.bloomingbit.io": {
+      "name": "bloomingbit",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "kucoin.com": {
+      "name": "KuCoin",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cnn.com": {
+      "name": "CNN",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "nypost.com": {
+      "name": "New York Post",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "app.dealroom.co": {
+      "name": "Dealroom",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "thedefiant.io": {
+      "name": "The Defiant",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "gizmodo.com": {
+      "name": "Gizmodo",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "ms.now": {
+      "name": "MS NOW",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "bitcoinmagazine.com": {
+      "name": "Bitcoin Magazine",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "investors.com": {
+      "name": "Investor's Business Daily",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "tradersunion.com": {
+      "name": "Traders Union",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "s3partners.com": {
+      "name": "S3 Partners",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "siliconangle.com": {
+      "name": "SiliconANGLE",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "kjzz.org": {
+      "name": "KJZZ",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "almendron.com": {
+      "name": "Asociación Almendrón",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "autonews.gasgoo.com": {
+      "name": "Gasgoo",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "investorplace.com": {
+      "name": "InvestorPlace",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "japantimes.co.jp": {
+      "name": "The Japan Times",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "medium.com": {
+      "name": "Medium",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "kxly.com": {
+      "name": "KXLY.com",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "kcentv.com": {
+      "name": "kcentv.com",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cowboystatedaily.com": {
+      "name": "Cowboy State Daily",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "ksn.com": {
+      "name": "KSN.com",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "startribune.com": {
+      "name": "Star Tribune",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "abqjournal.com": {
+      "name": "Albuquerque Journal",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "briefs.co": {
+      "name": "Briefs Finance",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "nbcwashington.com": {
+      "name": "NBC4 Washington",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "sg.news.yahoo.com": {
+      "name": "Yahoo News Singapore",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "bbc.com": {
+      "name": "BBC",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cfr.org": {
+      "name": "Council on Foreign Relations",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cbc.ca": {
+      "name": "CBC",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "thewrap.com": {
+      "name": "TheWrap",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cascadepbs.org": {
+      "name": "Cascade PBS",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "thedailybeast.com": {
+      "name": "The Daily Beast",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "atlanticcouncil.org": {
+      "name": "Atlantic Council",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "huffpost.com": {
+      "name": "HuffPost",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "unn.ua": {
+      "name": "Українські Національні Новини (УНН)",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "lowellsun.com": {
+      "name": "Lowell Sun",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "thefulcrum.us": {
+      "name": "The Fulcrum",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "chinadailyasia.com": {
+      "name": "chinadailyhk",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "spectator.com": {
+      "name": "The Spectator",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "nationthailand.com": {
+      "name": "Nation Thailand",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "english.aawsat.com": {
+      "name": "ASHARQ AL-AWSAT English",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "ca.finance.yahoo.com": {
+      "name": "Yahoo! Finance Canada",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "etfdb.com": {
+      "name": "ETF Database",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cryptobriefing.com": {
+      "name": "Crypto Briefing",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "celo.org": {
+      "name": "celo-blockchain",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "prnewswire.com": {
+      "name": "PR Newswire",
+      "checked": 1795853429.6908157,
+      "last_seen": 1795853429.6908157
+    },
+    "memeburn.com": {
+      "name": "Memeburn",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "panewslab.com": {
+      "name": "PANews",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "uk.investing.com": {
+      "name": "Investing.com UK",
+      "checked": 1795853429.6908157,
+      "last_seen": 1795853429.6908157
+    },
+    "mlq.ai": {
+      "name": "MLQ.ai",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "coinmarketcap.com": {
+      "name": "CoinMarketCap",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "invesco.com": {
+      "name": "Invesco",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "bangkokpost.com": {
+      "name": "Bangkok Post",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "news.stocktradersdaily.com": {
+      "name": "Stock Traders Daily",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "pluang.com": {
+      "name": "Pluang",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
+    },
+    "cryptonews.com": {
+      "name": "Cryptonews",
+      "checked": 0,
+      "last_seen": 1795853429.6908157
     },
     "investinglive.com": {
       "name": "investingLive",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "cbsnews.com": {
-      "name": "CBS News",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "marketwatch.com": {
-      "name": "MarketWatch",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "openai.com": {
       "name": "OpenAI",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
-    },
-    "aljazeera.com": {
-      "name": "Al Jazeera",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "theguardian.com": {
-      "name": "The Guardian",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
-    },
-    "forbes.com": {
-      "name": "Forbes",
-      "checked": 0,
+      "checked": 1795853429.6908157,
       "last_seen": 1795767028.4682114
     },
     "economist.com": {
@@ -145,73 +605,8 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "decrypt.co": {
-      "name": "Decrypt",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "npr.org": {
-      "name": "NPR",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "benzinga.com": {
-      "name": "Benzinga",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "fortune.com": {
-      "name": "Fortune",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "time.com": {
-      "name": "Time Magazine",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "pbs.org": {
-      "name": "PBS",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "aa.com.tr": {
-      "name": "Anadolu Ajansı",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "247wallst.com": {
-      "name": "24/7 Wall St.",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "thehill.com": {
-      "name": "The Hill",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "latimes.com": {
       "name": "Los Angeles Times",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "politico.com": {
-      "name": "Politico",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "foxbusiness.com": {
-      "name": "Fox Business",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "foxnews.com": {
-      "name": "Fox News",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "inc.com": {
-      "name": "Inc.com",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
@@ -230,16 +625,6 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "usatoday.com": {
-      "name": "USA Today",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "coindesk.com": {
-      "name": "CoinDesk",
-      "checked": 1795680615.5296438,
-      "last_seen": 1795767028.4682114
-    },
     "advisorperspectives.com": {
       "name": "Advisor Perspectives",
       "checked": 0,
@@ -250,23 +635,8 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "theblock.co": {
-      "name": "The Block",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
-    },
-    "shattered.io": {
-      "name": "shattered.io",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "pionline.com": {
       "name": "Pensions & Investments",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "tradingview.com": {
-      "name": "TradingView",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
@@ -280,38 +650,13 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "investing.com": {
-      "name": "Investing.com",
-      "checked": 1795767028.4682114,
-      "last_seen": 1795767028.4682114
-    },
-    "finance.biggo.com": {
-      "name": "BigGo Finance",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "crypto.news": {
-      "name": "Crypto News",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "ig.com": {
       "name": "IG Bank",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "morningstar.com": {
-      "name": "Morningstar",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "businesskorea.co.kr": {
       "name": "Businesskorea",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "seekingalpha.com": {
-      "name": "Seeking Alpha",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
@@ -335,28 +680,8 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "barchart.com": {
-      "name": "Barchart.com",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "theverge.com": {
-      "name": "The Verge",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "independent.co.uk": {
-      "name": "The Independent",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "tomshardware.com": {
       "name": "Tom's Hardware",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "miningjournal.net": {
-      "name": "The Mining Journal",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
@@ -400,21 +725,6 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "jpost.com": {
-      "name": "The Jerusalem Post",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "newscord.org": {
-      "name": "NewsCord",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "deadline.com": {
-      "name": "Deadline",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "tweaktown.com": {
       "name": "TweakTown",
       "checked": 0,
@@ -432,11 +742,6 @@
     },
     "marketscreener.com": {
       "name": "marketscreener.com",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "engadget.com": {
-      "name": "Engadget",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
@@ -467,11 +772,6 @@
     },
     "iranintl.com": {
       "name": "Iran International",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "newsweek.com": {
-      "name": "Newsweek",
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
@@ -555,21 +855,6 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "cointribune.com": {
-      "name": "Cointribune",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "cryptonews.net": {
-      "name": "Cryptonews.net",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
-    "en.bloomingbit.io": {
-      "name": "bloomingbit",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "kalkine.com.au": {
       "name": "Kalkine",
       "checked": 0,
@@ -585,18 +870,8 @@
       "checked": 0,
       "last_seen": 1795767028.4682114
     },
-    "kucoin.com": {
-      "name": "KuCoin",
-      "checked": 0,
-      "last_seen": 1795767028.4682114
-    },
     "michaelparekh.substack.com": {
       "name": "AI: Reset to Zero",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
-    "cnn.com": {
-      "name": "CNN",
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
@@ -610,11 +885,6 @@
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
-    "nypost.com": {
-      "name": "New York Post",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
     "snopes.com": {
       "name": "Snopes.com",
       "checked": 0,
@@ -625,29 +895,14 @@
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
-    "app.dealroom.co": {
-      "name": "Dealroom",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
     "newscientist.com": {
       "name": "New Scientist",
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
-    "thedefiant.io": {
-      "name": "The Defiant",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
     "apnews.com": {
       "name": "AP News",
-      "checked": 1795680615.5296438,
-      "last_seen": 1795680615.5296438
-    },
-    "gizmodo.com": {
-      "name": "Gizmodo",
-      "checked": 0,
+      "checked": 1795853429.6908157,
       "last_seen": 1795680615.5296438
     },
     "azom.com": {
@@ -667,11 +922,6 @@
     },
     "prospect.org": {
       "name": "The American Prospect",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
-    "ms.now": {
-      "name": "MS NOW",
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
@@ -735,11 +985,6 @@
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
-    "bitcoinmagazine.com": {
-      "name": "Bitcoin Magazine",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
     "fxnewsgroup.com": {
       "name": "FX News Group",
       "checked": 0,
@@ -765,11 +1010,6 @@
       "checked": 0,
       "last_seen": 1795680615.5296438
     },
-    "investors.com": {
-      "name": "Investor's Business Daily",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
-    },
     "legis1.com": {
       "name": "Legis1",
       "checked": 0,
@@ -784,12 +1024,7 @@
       "name": "CFOtech Asia",
       "checked": 0,
       "last_seen": 1795680615.5296438
-    },
-    "tradersunion.com": {
-      "name": "Traders Union",
-      "checked": 0,
-      "last_seen": 1795680615.5296438
     }
   },
-  "last_scan": 1795767028.4682114
+  "last_scan": 1795853429.6908157
 }
